@@ -1,0 +1,58 @@
+# hostname of your service
+# (supports monorepositories! just add
+# one service section after the other)
+saleorbe:
+  # ==== how to build your application ====
+  build:
+    # select what technology should the
+    # build container be based on, can
+    # be different from service technology
+    # see docs for full list
+    base: [ python@3.8 ]
+    # *optional* add additional dependencies
+    # on top of base technology (combination
+    # will be cached for next build)
+    #prepare:
+    #   - apt install python3-pip    
+    # build your application
+    build:
+    - echo PIP_TARGET $PIP_TARGET ; echo PYTHONPATH $PYTHONPATH
+    - mkdir -p python-packages/dist-packages ; mkdir -p /var/www/python-packages/dist-packages
+    - git clone https://github.com/saleor/saleor.git
+    - apt update; apt install -y libpango1.0-dev
+    - cd saleor ; python3 --version; which python3; python3 -m pip list && python3 -m pip --version
+    - cd saleor && python3 -m pip install --target /var/www/python-packages/dist-packages -r requirements.txt
+    - cd saleor && python3 manage.py migrate
+    - cd saleor && python3 manage.py populatedb
+    - cp -R /var/www/python-packages/dist-packages/* python-packages/dist-packages
+    # select which files / folders to deploy
+    # after the build succesfully finished
+    deploy: [ saleor, python-packages ]
+    # *optional*: which files / folders
+    # to cache for the next use
+    # cache: [ ]
+  # ==== how to run your application ====
+  run:
+    # *optional* install dependencies that your
+    # runtime service requires (will be cached)
+    prepare:
+    - apt update; apt install -y libpango1.0-dev
+    #- cd /var/www; git clone https://github.com/saleor/saleor.git
+    #- apt update; apt install -y libpango1.0-dev
+    #- cd /var/www/saleor; python3 -m venv saleor-venv
+    #- cd /var/www/saleor; source saleor-venv/bin/activate; pip install -U pip; pip install -U wheel; pip install -U setuptools
+    #- cd /var/www/saleor; source saleor-venv/bin/activate; python --version; which python; pip list 
+    #- cd /var/www/saleor; source saleor-venv/bin/activate; pip install -r requirements.txt 
+    ### env DATABASE_URL=postgresql_connectionString exists! ###  
+    #- cd /var/www/saleor; source saleor-venv/bin/activate; python manage.py migrate
+    #- cd /var/www/saleor; source saleor-venv/bin/activate; python manage.py populatedb
+    # *optional*: triggered before each start/restart
+    # of your application, to eg. clean cache
+    #init:
+    #- asdf
+    # how to start your application
+    ### env ALLOWED_HOSTS=saleorbe_subdomain exists ###
+    start: cd saleor; python3 manage.py runserver 0.0.0.0:8000
+    #cd saleor; python3 --version >> pythonVersion.txt; python3 -m pip list >> pythonVersion.txt ; tail -f
+    #cd saleor; source saleor-venv/bin/activate; python --version > pythonVersion.txt; tail -f
+    #cd /var/www/saleor; source saleor-venv/bin/activate; python manage.py runserver 0.0.0.0:8000

@@ -1,0 +1,23 @@
+project:
+  name: saleor
+services:
+- hostname: saleordb
+  type: postgresql@12
+  priority: 2
+  mode: NON_HA
+- hostname: saleorbe
+  type: python@3.8
+  priority: 1
+  verticalAutoscaling:
+    minRam: 2.0    
+  minContainers: 1
+  maxContainers: 1
+  buildFromGit: https://github.com/Databazator/test-saleor-import-pkgdeploy@main
+  ports:
+  - port: 8000     
+  envVariables:
+    PYTHONPATH: /var/www/python-packages/dist-packages
+    ALLOWED_HOSTS: ${zeropsSubdomain8000},127.0.0.1,0.0.0.0
+    DATABASE_URL: ${saleordb_connectionString}/${saleordb_hostname}
+    SECRET_KEY: verySecretMuchSafe
+  enableSubdomainAccess: True
