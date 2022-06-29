@@ -17,14 +17,15 @@ saleorbe:
     # build your application
     build:
     - echo PIP_TARGET $PIP_TARGET ; echo PYTHONPATH $PYTHONPATH
-    - mkdir -p python-packages/dist-packages ; mkdir -p /var/www/python-packages/dist-packages
+    - mkdir -p python-packages/lib/python3.8/site-packages ; mkdir -p /var/www/python-packages/lib/python3.8/site-packages
     - git clone https://github.com/saleor/saleor.git
     - apt update; apt install -y libpango1.0-dev
     - cd saleor ; python3 --version; which python3; python3 -m pip list && python3 -m pip --version
-    - cd saleor && python3 -m pip install --target /var/www/python-packages/dist-packages -r requirements.txt
+    - cd saleor && python3 -m pip install --ignore-installed -r requirements.txt #--target /var/www/python-packages/dist-packages
+    - ls /var/www/python-packages/lib/python3.8/site-packages
     - cd saleor && python3 manage.py migrate
     - cd saleor && python3 manage.py populatedb
-    - cp -R /var/www/python-packages/dist-packages/* python-packages/dist-packages
+    - cp -R /var/www/python-packages/lib/python3.8/site-packages/* python-packages/lib/python3.8/site-packages
     # select which files / folders to deploy
     # after the build succesfully finished
     deploy: [ saleor, python-packages ]

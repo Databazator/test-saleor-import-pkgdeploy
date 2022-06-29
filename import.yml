@@ -16,7 +16,8 @@ services:
   ports:
   - port: 8000     
   envVariables:
-    PYTHONPATH: /var/www/python-packages/dist-packages
+    PIP_PREFIX: /var/www/python-packages
+    PYTHONPATH: /var/www/python-packages/lib/python3.8/site-packages
     ALLOWED_HOSTS: ${zeropsSubdomain8000},127.0.0.1,0.0.0.0
     DATABASE_URL: ${saleordb_connectionString}/${saleordb_hostname}
     SECRET_KEY: verySecretMuchSafe
